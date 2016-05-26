@@ -1,0 +1,16 @@
+{
+  "name": "webpack-faster-uglify-plugin",
+  "version": "0.0.0",
+  "description": "A faster uglifyjs plugin.",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "keywords": [
+    "webpack",
+    "uglifyjs",
+    "minimize"
+  ],
+  "author": "Gary Borton <gdborton@gmail.com>",
+  "license": "ISC"
+}
