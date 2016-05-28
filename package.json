@@ -4,7 +4,7 @@
   "description": "A webpack plugin to run uglifyjs in parallel.",
   "main": "index.js",
   "scripts": {
-    "test": "test",
+    "test": "ava",
     "lint": "eslint ."
   },
   "keywords": [
@@ -15,11 +15,13 @@
   "author": "Gary Borton <gdborton@gmail.com>",
   "license": "ISC",
   "devDependencies": {
+    "ava": "^0.15.1",
     "eslint": "^2.10.2",
     "eslint-config-airbnb": "^9.0.1",
     "eslint-plugin-import": "^1.8.0",
     "eslint-plugin-jsx-a11y": "^1.2.2",
-    "eslint-plugin-react": "^5.1.1"
+    "eslint-plugin-react": "^5.1.1",
+    "sinon": "^1.17.4"
   },
   "dependencies": {
     "uglify-js": "^2.6.2"
