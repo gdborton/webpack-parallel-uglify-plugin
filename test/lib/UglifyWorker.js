@@ -69,12 +69,14 @@ test('worker should call processFiles when it is not the master', t => {
 
 test('processFiles should attempt to read each file, minify its contents, then write to it', t => {
   const fakeResult = 'fakeResult';
-  const stubbedRead = sinon.stub(fs, 'readFileSync');
+  const fakeContent = 'fakeContent';
+  const stubbedRead = sinon.stub(fs, 'readFileSync', () => fakeContent);
   const stubbedWrite = sinon.stub(fs, 'writeFileSync');
   const stubbedMinify = sinon.stub(worker, 'minify', () => fakeResult);
   const stubbedExit = sinon.stub(process, 'exit');
   worker.processFiles(files);
   files.forEach(file => {
+    t.true(stubbedMinify.calledWith(fakeContent, options));
     t.true(stubbedRead.calledWith(file, 'utf-8'));
     t.true(stubbedWrite.calledWith(file, fakeResult));
   });
@@ -102,10 +104,7 @@ test('slaveInitializer should hook up the messageHandler function if not master'
 });
 
 test('messageHandler should handle `options` and `files` messages', t => {
-  const stubbedConstructor = sinon.stub(workerStuff, 'UglifyWorker', () => {
-    void(0);
-    return {};
-  });
+  const stubbedConstructor = sinon.stub(workerStuff, 'UglifyWorker', () => ({}));
   messageHandler({
     type: 'options',
     value: options,
