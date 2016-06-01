@@ -38,13 +38,15 @@ test('Creating a new UglifyWorker should spawn a new process and send it options
 });
 
 test('minify minifies using uglify and passed options and returns the value', t => {
-  const stubbedMinify = sinon.stub(uglify, 'minify');
+  const minifySpy = sinon.spy(uglify, 'minify');
   const builtOptions = Object.assign({}, options, { fromString: true });
   const code = 'function    withTooManySpaces    (){}';
-  worker.minify(code, options);
-  t.true(stubbedMinify.called);
-  t.true(stubbedMinify.calledWith(code, builtOptions));
-  stubbedMinify.restore();
+  const minifiedCode = 'function withTooManySpaces(){}';
+  const result = worker.minify(code, options);
+  t.is(result, minifiedCode);
+  t.true(minifySpy.called);
+  t.true(minifySpy.calledWith(code, sinon.match(builtOptions)));
+  minifySpy.restore();
 });
 
 test('worker should send files to its slave if it is master', t => {
