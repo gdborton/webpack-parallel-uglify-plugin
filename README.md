@@ -12,6 +12,10 @@ import ParallelUglifyPlugin from 'webpack-parallel-uglify-plugin';
 module.exports = {
   plugins: [
     new ParallelUglifyPlugin({
+      // shouldMinify provides a method to skip minification on a file by file basis.
+      shouldMinify(absolutePath) {
+        return true;
+      },
       uglifyJS: {
         // These pass straight through to uglify.
       }
