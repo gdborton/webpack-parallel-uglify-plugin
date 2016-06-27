@@ -7,6 +7,10 @@
     "test": "ava",
     "lint": "eslint ."
   },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/gdborton/webpack-parallel-uglify-plugin.git"
+  },
   "keywords": [
     "webpack",
     "uglifyjs",
