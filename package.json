@@ -4,7 +4,7 @@
   "description": "A webpack plugin to run uglifyjs in parallel.",
   "main": "index.js",
   "scripts": {
-    "test": "ava",
+    "test": "nyc --reporter=html --reporter=lcov ava",
     "lint": "eslint ."
   },
   "repository": {
@@ -25,6 +25,7 @@
     "eslint-plugin-import": "^1.8.0",
     "eslint-plugin-jsx-a11y": "^1.2.2",
     "eslint-plugin-react": "^5.1.1",
+    "nyc": "^6.6.1",
     "sinon": "^1.17.4"
   },
   "dependencies": {
