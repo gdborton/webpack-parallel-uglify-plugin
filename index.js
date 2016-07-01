@@ -1,5 +1,5 @@
 const path = require('path');
-const Uglifier = require('./lib/Uglifier');
+const processFiles = require('./lib/Uglifier');
 
 function FasterUglifyPlugin(options) {
   this.options = options;
@@ -11,8 +11,7 @@ FasterUglifyPlugin.prototype.apply = function apply(compiler) {
     const filePaths = outputFiles.map(outputFile => (
       path.join(stats.compilation.outputOptions.path, outputFile)
     ));
-    const uglifier = new Uglifier(this.options);
-    uglifier.processFiles(filePaths);
+    processFiles(filePaths, this.options);
   });
 };
 
