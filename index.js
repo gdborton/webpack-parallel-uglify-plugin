@@ -1,5 +1,5 @@
 const path = require('path');
-const processFiles = require('./lib/Uglifier');
+const processFiles = require('./lib/uglifier');
 
 function FasterUglifyPlugin(options) {
   this.options = options;
