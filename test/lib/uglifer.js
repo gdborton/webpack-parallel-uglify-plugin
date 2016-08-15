@@ -7,21 +7,25 @@ import path from 'path';
 
 const stubbedOn = sinon.stub(process, 'on');
 const {
-  retrieveFromCache,
-  minify,
-  workerCount,
   createWorkers,
+  minify,
+  retrieveFromCache,
+  saveToCache,
+  workerCount,
 } = require('../../lib/uglifier');
 
 stubbedOn.restore();
 
 let stubbedRead;
+let stubbedWrite;
 test.beforeEach(() => {
   stubbedRead = sinon.stub(fs, 'readFileSync', (filePath) => {
     const fileName = path.basename(filePath, '.js');
     if (fileName === 'throw') throw new Error('error');
     return 'filecontents';
   });
+
+  stubbedWrite = sinon.stub(fs, 'writeFileSync');
 });
 
 const fakeWorker = {
@@ -32,6 +36,7 @@ const fakeWorker = {
 
 test.afterEach(() => {
   stubbedRead.restore();
+  stubbedWrite.restore();
 });
 
 test('workerCount should be cpus - 1', t => {
@@ -67,4 +72,19 @@ test('retrieveFromCache should return a falsy value if the cache file does not e
   const cacheKey = 'throw';
   const result = retrieveFromCache(cacheKey, cacheDir);
   t.falsy(result);
+});
+
+test('saveToCache should write results to a cached file', t => {
+  const cacheDir = '/cacheDir';
+  const minifiedCode = 'minifiedCode;';
+  const cacheKey = 'mycachekey';
+  saveToCache(cacheKey, minifiedCode, cacheDir);
+  t.true(stubbedWrite.calledWith(path.join(cacheDir, `${cacheKey}.js`), minifiedCode));
+});
+
+test('saveToCache should not write anything if no cacheDir is defined', t => {
+  const minifiedCode = 'minifiedCode;';
+  const cacheKey = 'mycachekey';
+  saveToCache(cacheKey, minifiedCode, undefined);
+  t.false(stubbedWrite.called);
 });
