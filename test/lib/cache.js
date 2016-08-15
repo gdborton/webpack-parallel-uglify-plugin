@@ -1,9 +1,8 @@
-import cacheKeyGenerator from '../../lib/cache';
-import path from 'path';
+import cache from '../../lib/cache';
 import test from 'ava';
 
 test('cacheKeyGenerator should return a sha256 hash for a given file name', t => {
-  const result = cacheKeyGenerator(path.join(__dirname, 'cache.js'));
+  const result = cache.createHashFromContent('asdf');
   t.is(typeof result, 'string');
   t.is(result.length, 64);
 });
