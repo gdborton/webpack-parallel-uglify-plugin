@@ -39,9 +39,17 @@ test.afterEach(() => {
   stubbedDelete.restore();
 });
 
-test('workerCount should be cpus - 1', t => {
+test('workerCount should be cpus - 1 if assetCount is >= cpus', t => {
   const cpuStub = sinon.stub(os, 'cpus', () => ({ length: 8 }));
-  t.is(workerCount(), 7);
+  const assetCount = 10;
+  t.is(workerCount(assetCount), 7);
+  cpuStub.restore();
+});
+
+test('workerCount should be assetCount if assetCount is < cpus', t => {
+  const cpuStub = sinon.stub(os, 'cpus', () => ({ length: 8 }));
+  const assetCount = 5;
+  t.is(workerCount(assetCount), 5);
   cpuStub.restore();
 });
 
