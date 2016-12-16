@@ -2,8 +2,6 @@
 
 This plugin serves to help projects with many entry points speed up their builds.  The UglifyJS plugin provided with webpack runs sequentially on each of the output files.  This plugin runs uglify in parallel with one thread for each of your available cpus.  This can lead to significantly reduced build times as minification is very CPU intensive.
 
-#### Important note: at the moment, this plugin does not support source maps.
-
 ## Config
 
 Configuring is straightforward.
