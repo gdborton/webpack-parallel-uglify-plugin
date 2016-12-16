@@ -3,14 +3,21 @@ import uglify from 'uglify-js';
 import sinon from 'sinon';
 import tmpFile from '../../lib/tmp-file';
 import cache from '../../lib/cache';
+import { RawSource, OriginalSource } from 'webpack-sources';
 
-const originalContent = 'function  test   ()    {   void(0); }';
-const minifiedContent = uglify.minify(originalContent, { fromString: true }).code;
+const codeSource = 'function  test   ()    {   void(0); }';
+const rawSource = new RawSource(codeSource);
+const originalSource = new OriginalSource(codeSource);
+const originalContent = JSON.stringify(rawSource.sourceAndMap());
+const minifiedContent = uglify.minify(codeSource, { fromString: true });
 
 // ava is multi process and uses process.on,
 // so we stub it to be sure it doesn't get in the way.
 const stubbedOn = sinon.stub(process, 'on');
-const messageHandler = require('../../lib/worker');
+const worker = require('../../lib/worker');
+const messageHandler = worker.messageHandler;
+const minify = worker.minify;
+
 stubbedOn.restore();
 
 let stubbedRead;
@@ -25,9 +32,22 @@ test.afterEach(() => {
   stubbedUpdate.restore();
 });
 
+test('minify should not return a map if called with a RawSource object', t => {
+  const { map } = rawSource.sourceAndMap();
+  const result = minify(codeSource, map);
+  t.is(result.map, null);
+  t.is(result.code, minifiedContent.code); // should produce the same minified content.
+});
+
+test('minify should return a valid source map if called with an OriginalSource object', t => {
+  const { map } = originalSource.sourceAndMap();
+  const result = minify(codeSource, map);
+  t.truthy(result.map);
+  t.is(result.code, minifiedContent.code); // should produce the same minified content.
+});
+
 test('messageHandler should handle minify messages, minifying the provided file.', t => {
   const stubbedSend = sinon.stub(process, 'send');
-  const stubbedRetrieve = sinon.stub(cache, 'retrieveFromCache', () => undefined);
   const assetName = 'abc';
   const tmpFileName = 'asdf';
   const options = {
@@ -43,12 +63,11 @@ test('messageHandler should handle minify messages, minifying the provided file.
     options,
   });
 
-  t.true(stubbedUpdate.calledWith(tmpFileName, minifiedContent));
+  t.true(stubbedUpdate.calledWith(tmpFileName, JSON.stringify(minifiedContent)));
   t.true(stubbedSend.calledWith({
     assetName,
     type: 'success',
     cacheKey: cache.createCacheKey(originalContent, options),
   }));
   stubbedSend.restore();
-  stubbedRetrieve.restore();
 });
