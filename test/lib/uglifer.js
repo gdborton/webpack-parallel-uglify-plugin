@@ -62,13 +62,10 @@ test('createWorkers should fork x times', t => {
 
 test('minify should return a Promise', t => {
   const promise = minify(
-    'uglifier.js', {
-      sourceAndMap: () => ({
-        code: 'asdf;',
-        map: {},
-      }),
-    },
-    fakeWorker,
+    'uglifier.js', // assetName
+    { source: () => 'asdf;' }, // asset
+    false, // useSourceMaps
+    fakeWorker, // worker
     {}
   );
   // ava uses babel for tests so Promise probably isn't node Promise.
