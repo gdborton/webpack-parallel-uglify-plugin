@@ -65,7 +65,7 @@ test('messageHandler should handle minify messages, minifying the provided file.
 
   t.true(stubbedUpdate.calledWith(tmpFileName, JSON.stringify(minifiedContent)));
   const cacheKey = cache.createCacheKey(
-    JSON.stringify({ source: codeSource, useSourceMaps: false }),
+    codeSource + false,
     options
   );
   t.true(stubbedSend.calledWith({
