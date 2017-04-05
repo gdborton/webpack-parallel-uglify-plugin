@@ -14,6 +14,7 @@ module.exports = {
     new ParallelUglifyPlugin({
       cacheDir, // Optional absolute path to use as a cache. If not provided, caching will not be used.
       workerCount, // Optional int. Number of workers to run uglify. Defaults to num of cpus - 1 or asset count (whichever is smaller)
+      maxListeners, // Optional int. Number of max listeners to set on workers. Defaults to 100.
       uglifyJS: {
         // These pass straight through to uglify.
       },
