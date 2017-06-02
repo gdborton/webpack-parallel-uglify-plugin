@@ -2,13 +2,10 @@ import test from 'ava';
 import sinon from 'sinon';
 import fs from 'fs';
 import os from 'os';
-import childProcess from 'child_process';
 import path from 'path';
 
 const stubbedOn = sinon.stub(process, 'on');
 const {
-  createWorkers,
-  minify,
   workerCount,
 } = require('../../lib/uglifier');
 
@@ -26,12 +23,6 @@ test.beforeEach(() => {
   stubbedDelete = sinon.stub(fs, 'unlinkSync');
   stubbedWrite = sinon.stub(fs, 'writeFileSync');
 });
-
-const fakeWorker = {
-  on: () => {},
-  send: () => {},
-  setMaxListeners: () => {},
-};
 
 test.afterEach(() => {
   stubbedRead.restore();
@@ -51,23 +42,4 @@ test('workerCount should be assetCount if assetCount is < cpus', t => {
   const assetCount = 5;
   t.is(workerCount(assetCount), 5);
   cpuStub.restore();
-});
-
-test('createWorkers should fork x times', t => {
-  const stubbedFork = sinon.stub(childProcess, 'fork', () => fakeWorker);
-  createWorkers(12);
-  t.is(stubbedFork.callCount, 12);
-  stubbedFork.restore();
-});
-
-test('minify should return a Promise', t => {
-  const promise = minify(
-    'uglifier.js', // assetName
-    { source: () => 'asdf;' }, // asset
-    false, // useSourceMaps
-    fakeWorker, // worker
-    {}
-  );
-  // ava uses babel for tests so Promise probably isn't node Promise.
-  t.is(typeof promise.then, 'function');
 });

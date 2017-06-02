@@ -2,7 +2,6 @@ import test from 'ava';
 import uglify from 'uglify-js';
 import sinon from 'sinon';
 import tmpFile from '../../lib/tmp-file';
-import cache from '../../lib/cache';
 import { RawSource, OriginalSource } from 'webpack-sources';
 
 const codeSource = 'function  test   ()    {   void(0); }';
@@ -15,7 +14,6 @@ const minifiedContent = uglify.minify(codeSource, { fromString: true });
 // so we stub it to be sure it doesn't get in the way.
 const stubbedOn = sinon.stub(process, 'on');
 const worker = require('../../lib/worker');
-const messageHandler = worker.messageHandler;
 const minify = worker.minify;
 
 stubbedOn.restore();
@@ -44,34 +42,4 @@ test('minify should return a valid source map if called with an OriginalSource o
   const result = minify(codeSource, map);
   t.truthy(result.map);
   t.is(result.code, minifiedContent.code); // should produce the same minified content.
-});
-
-test('messageHandler should handle minify messages, minifying the provided file.', t => {
-  const stubbedSend = sinon.stub(process, 'send');
-  const assetName = 'abc';
-  const tmpFileName = 'asdf';
-  const options = {
-    uglifyJS: {
-      bunk: true,
-    },
-  };
-
-  messageHandler({
-    type: 'minify',
-    assetName,
-    tmpFileName,
-    options,
-  });
-
-  t.true(stubbedUpdate.calledWith(tmpFileName, JSON.stringify(minifiedContent)));
-  const cacheKey = cache.createCacheKey(
-    codeSource + false,
-    options
-  );
-  t.true(stubbedSend.calledWith({
-    assetName,
-    type: 'success',
-    cacheKey,
-  }));
-  stubbedSend.restore();
 });
