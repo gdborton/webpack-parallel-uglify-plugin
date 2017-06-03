@@ -2,19 +2,30 @@ import test from 'ava';
 import uglify from 'uglify-js';
 import sinon from 'sinon';
 import tmpFile from '../../lib/tmp-file';
+import cache from '../../lib/cache';
 import { RawSource, OriginalSource } from 'webpack-sources';
 
 const codeSource = 'function  test   ()    {   void(0); }';
 const rawSource = new RawSource(codeSource);
 const originalSource = new OriginalSource(codeSource);
-const originalContent = JSON.stringify(rawSource.sourceAndMap());
+const sourceAndMap = rawSource.sourceAndMap();
+const options = {
+  uglifyJS: {
+    bunk: true,
+  },
+};
+const originalContent = JSON.stringify({
+  source: sourceAndMap.source,
+  map: sourceAndMap.map,
+  options,
+});
 const minifiedContent = uglify.minify(codeSource, { fromString: true });
 
 // ava is multi process and uses process.on,
 // so we stub it to be sure it doesn't get in the way.
 const stubbedOn = sinon.stub(process, 'on');
 const worker = require('../../lib/worker');
-const minify = worker.minify;
+const { minify, processMessage } = worker;
 
 stubbedOn.restore();
 
@@ -42,4 +53,20 @@ test('minify should return a valid source map if called with an OriginalSource o
   const result = minify(codeSource, map);
   t.truthy(result.map);
   t.is(result.code, minifiedContent.code); // should produce the same minified content.
+});
+
+test.cb('processMessage should minify the file passed via a tmpFile message', (t) => {
+  const tmpFileName = 'asdf';
+
+  processMessage(tmpFileName, (error) => {
+    if (error) { t.end(error); }
+    const cacheKey = cache.createCacheKey(codeSource + false, options);
+    t.true(stubbedUpdate.calledWith(tmpFileName, JSON.stringify({
+      source: minifiedContent.code,
+      map: minifiedContent.map,
+      cacheKey,
+    })));
+
+    t.end();
+  });
 });

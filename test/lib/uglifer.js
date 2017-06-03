@@ -1,34 +1,23 @@
 import test from 'ava';
 import sinon from 'sinon';
-import fs from 'fs';
 import os from 'os';
-import path from 'path';
 
-const stubbedOn = sinon.stub(process, 'on');
 const {
   workerCount,
+  processAssets,
 } = require('../../lib/uglifier');
 
-stubbedOn.restore();
-
-let stubbedRead;
-let stubbedWrite;
-let stubbedDelete;
-test.beforeEach(() => {
-  stubbedRead = sinon.stub(fs, 'readFileSync', (filePath) => {
-    const fileName = path.basename(filePath, '.js');
-    if (fileName === 'throw') throw new Error('error');
-    return 'filecontents';
-  });
-  stubbedDelete = sinon.stub(fs, 'unlinkSync');
-  stubbedWrite = sinon.stub(fs, 'writeFileSync');
-});
-
-test.afterEach(() => {
-  stubbedRead.restore();
-  stubbedWrite.restore();
-  stubbedDelete.restore();
-});
+const filename = 'somefile.js';
+const fakeCompilationObject = {
+  assets: {
+    [filename]: {
+      source() {
+        return 'function    name()   {   }';
+      },
+    },
+  },
+  options: {},
+};
 
 test('workerCount should be cpus - 1 if assetCount is >= cpus', t => {
   const cpuStub = sinon.stub(os, 'cpus', () => ({ length: 8 }));
@@ -42,4 +31,12 @@ test('workerCount should be assetCount if assetCount is < cpus', t => {
   const assetCount = 5;
   t.is(workerCount(assetCount), 5);
   cpuStub.restore();
+});
+
+test.cb('processAssets minifies each of the assets in the compilation object', (t) => {
+  processAssets(fakeCompilationObject, {}).then(() => {
+    const minifiedSource = fakeCompilationObject.assets[filename].source();
+    t.is(minifiedSource, 'function name(){}');
+    t.end();
+  });
 });
