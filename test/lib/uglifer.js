@@ -13,6 +13,15 @@ const testedFilename = 'testedFilename.js';
 const unminifedSource = 'function    name()   {   }';
 const minifiedSource = 'function name(){}';
 
+const sourceMap = JSON.stringify({
+  version: 3,
+  file: 'somefile.js.map',
+  sources: [],
+  sourceRoot: '/',
+  names: ['name'],
+  mappings: '',
+});
+
 function createFakeCompilationObject() {
   return {
     assets: {
@@ -20,10 +29,16 @@ function createFakeCompilationObject() {
         source() {
           return unminifedSource;
         },
+        map() {
+          return sourceMap;
+        },
       },
       [testedFilename]: {
         source() {
           return unminifedSource;
+        },
+        map() {
+          return sourceMap;
         },
       },
     },
@@ -89,6 +104,27 @@ test.cb('processAssets respects exclude option', (t) => {
     const matchedResult = fakeCompilationObject.assets[testedFilename].source();
     t.is(unmatchedResult, minifiedSource);
     t.is(matchedResult, unminifedSource);
+    t.end();
+  });
+});
+
+test.cb('processAssets respects uglifyJS.sourceMap option', (t) => {
+  const fakeCompilationObject = createFakeCompilationObject();
+  processAssets(fakeCompilationObject, {
+    sourceMap: true,
+    uglifyJS: { },
+  }).then(() => {
+    const assetSourceMap = fakeCompilationObject.assets[filename];
+    t.is(assetSourceMap.map(), sourceMap);
+    t.end();
+  });
+
+  processAssets(fakeCompilationObject, {
+    sourceMap: false,
+    uglifyJS: { },
+  }).then(() => {
+    const assetSourceMap = fakeCompilationObject.assets[filename];
+    t.is(assetSourceMap.map(), null);
     t.end();
   });
 });
