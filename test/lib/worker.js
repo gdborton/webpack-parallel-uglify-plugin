@@ -10,16 +10,14 @@ const rawSource = new RawSource(codeSource);
 const originalSource = new OriginalSource(codeSource);
 const sourceAndMap = rawSource.sourceAndMap();
 const options = {
-  uglifyJS: {
-    bunk: true,
-  },
+  uglifyJS: { },
 };
 const originalContent = JSON.stringify({
   source: sourceAndMap.source,
   map: sourceAndMap.map,
   options,
 });
-const minifiedContent = uglify.minify(codeSource, { fromString: true });
+const minifiedContent = uglify.minify(codeSource, { });
 
 // ava is multi process and uses process.on,
 // so we stub it to be sure it doesn't get in the way.
@@ -44,7 +42,7 @@ test.afterEach(() => {
 test('minify should not return a map if called with a RawSource object', t => {
   const { map } = rawSource.sourceAndMap();
   const result = minify(codeSource, map);
-  t.is(result.map, null);
+  t.is(result.map, undefined);
   t.is(result.code, minifiedContent.code); // should produce the same minified content.
 });
 
