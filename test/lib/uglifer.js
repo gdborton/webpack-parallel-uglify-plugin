@@ -49,14 +49,34 @@ function createFakeCompilationObject() {
 test('workerCount should be cpus - 1 if assetCount is >= cpus', t => {
   const cpuStub = sinon.stub(os, 'cpus', () => ({ length: 8 }));
   const assetCount = 10;
-  t.is(workerCount(assetCount), 7);
+  const options = {};
+  t.is(workerCount(options, assetCount), 7);
   cpuStub.restore();
 });
 
 test('workerCount should be assetCount if assetCount is < cpus', t => {
   const cpuStub = sinon.stub(os, 'cpus', () => ({ length: 8 }));
   const assetCount = 5;
-  t.is(workerCount(assetCount), 5);
+  const options = {};
+  t.is(workerCount(options, assetCount), 5);
+  cpuStub.restore();
+});
+
+test('workerCount should follow options', t => {
+  const assetCount = 5;
+  const options = {
+    workerCount: 2,
+  };
+  t.is(workerCount(options, assetCount), 2);
+});
+
+test('workerCount should take options before checking assets or cpu', t => {
+  const cpuStub = sinon.stub(os, 'cpus', () => ({ length: 2 }));
+  const assetCount = 2;
+  const options = {
+    workerCount: 4,
+  };
+  t.is(workerCount(options, assetCount), 4);
   cpuStub.restore();
 });
 
