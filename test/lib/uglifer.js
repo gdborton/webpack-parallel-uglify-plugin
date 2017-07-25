@@ -1,6 +1,7 @@
 import test from 'ava';
 import sinon from 'sinon';
 import os from 'os';
+import uglifyJS from 'uglify-js';
 
 const {
   workerCount,
@@ -10,6 +11,7 @@ const {
 const filename = 'somefile.js';
 const testedFilename = 'testedFilename.js';
 
+const badCode = 'func () {con.log("a)}';
 const unminifedSource = 'function    name()   {   }';
 const minifiedSource = 'function name(){}';
 
@@ -43,7 +45,12 @@ function createFakeCompilationObject() {
       },
     },
     options: {},
+    errors: [],
   };
+}
+
+function assertNoError(compilationObject, t) {
+  t.is(compilationObject.errors.length, 0);
 }
 
 test('workerCount should be cpus - 1 if assetCount is >= cpus', t => {
@@ -85,6 +92,7 @@ test.cb('processAssets minifies each of the assets in the compilation object', (
   processAssets(fakeCompilationObject, {}).then(() => {
     const minifiedResult = fakeCompilationObject.assets[filename].source();
     t.is(minifiedResult, minifiedSource);
+    assertNoError(fakeCompilationObject, t);
     t.end();
   });
 });
@@ -96,6 +104,7 @@ test.cb('processAssets respects test option', (t) => {
   }).then(() => {
     const unmatchedResult = fakeCompilationObject.assets[filename].source();
     const matchedResult = fakeCompilationObject.assets[testedFilename].source();
+    assertNoError(fakeCompilationObject, t);
     t.is(unmatchedResult, unminifedSource);
     t.is(matchedResult, minifiedSource);
     t.end();
@@ -109,6 +118,7 @@ test.cb('processAssets respects include option', (t) => {
   }).then(() => {
     const unmatchedResult = fakeCompilationObject.assets[filename].source();
     const matchedResult = fakeCompilationObject.assets[testedFilename].source();
+    assertNoError(fakeCompilationObject, t);
     t.is(unmatchedResult, unminifedSource);
     t.is(matchedResult, minifiedSource);
     t.end();
@@ -122,6 +132,7 @@ test.cb('processAssets respects exclude option', (t) => {
   }).then(() => {
     const unmatchedResult = fakeCompilationObject.assets[filename].source();
     const matchedResult = fakeCompilationObject.assets[testedFilename].source();
+    assertNoError(fakeCompilationObject, t);
     t.is(unmatchedResult, minifiedSource);
     t.is(matchedResult, unminifedSource);
     t.end();
@@ -135,6 +146,7 @@ test.cb('processAssets respects uglifyJS.sourceMap option', (t) => {
     uglifyJS: { },
   }).then(() => {
     const assetSourceMap = fakeCompilationObject.assets[filename];
+    assertNoError(fakeCompilationObject, t);
     t.is(assetSourceMap.map(), sourceMap);
     t.end();
   });
@@ -144,7 +156,37 @@ test.cb('processAssets respects uglifyJS.sourceMap option', (t) => {
     uglifyJS: { },
   }).then(() => {
     const assetSourceMap = fakeCompilationObject.assets[filename];
+    assertNoError(fakeCompilationObject, t);
     t.is(assetSourceMap.map(), null);
+    t.end();
+  });
+});
+
+
+test.cb('invalid JS should generate an error', (t) => {
+  const errorCompilationObject = {
+    assets: {
+      'somefile.js': {
+        source() {
+          return badCode;
+        },
+      },
+    },
+    errors: [],
+  };
+
+  let realErrorMessage;
+  try {
+    uglifyJS.minify(badCode, { fromString: true });
+  } catch (e) {
+    realErrorMessage = e.message;
+  }
+
+  processAssets(errorCompilationObject, {
+    sourceMap: false,
+    uglifyJS: {},
+  }).then(() => {
+    t.truthy(errorCompilationObject.errors[0].message.includes(realErrorMessage));
     t.end();
   });
 });
