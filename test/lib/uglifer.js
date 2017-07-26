@@ -2,6 +2,8 @@ import test from 'ava';
 import sinon from 'sinon';
 import os from 'os';
 import uglifyJS from 'uglify-js';
+import escodegen from 'escodegen';
+import { parse } from 'acorn';
 
 const {
   workerCount,
@@ -12,17 +14,24 @@ const filename = 'somefile.js';
 const testedFilename = 'testedFilename.js';
 
 const badCode = 'func () {con.log("a)}';
-const unminifedSource = 'function    name()   {   }';
-const minifiedSource = 'function name(){}';
+const unminifedSource = '(function name(){console.log(0)})()';
 
-const sourceMap = JSON.stringify({
-  version: 3,
-  file: 'somefile.js.map',
-  sources: [],
-  sourceRoot: '/',
-  names: ['name'],
-  mappings: '',
+// Generate a source map, this is setup to match as closely as possible the input source map that
+// webpack provides.
+const ast = parse(unminifedSource);
+const unminifiedSourceMap = JSON.parse(escodegen.generate(ast, {
+  file: 'x',
+  sourceMap: true,
+}));
+
+const { map: resultingMap, code: resultingSource } = uglifyJS.minify(unminifedSource, {
+  inSourceMap: unminifiedSourceMap,
+  outSourceMap: 'x',
+  fromString: true,
 });
+
+const minifiedSourceMap = JSON.parse(resultingMap);
+const minifiedSource = resultingSource.replace('\n//# sourceMappingURL=x', '');
 
 function createFakeCompilationObject() {
   return {
@@ -32,7 +41,7 @@ function createFakeCompilationObject() {
           return unminifedSource;
         },
         map() {
-          return sourceMap;
+          return unminifiedSourceMap;
         },
       },
       [testedFilename]: {
@@ -40,7 +49,7 @@ function createFakeCompilationObject() {
           return unminifedSource;
         },
         map() {
-          return sourceMap;
+          return unminifiedSourceMap;
         },
       },
     },
@@ -52,6 +61,13 @@ function createFakeCompilationObject() {
 function assertNoError(compilationObject, t) {
   t.is(compilationObject.errors.length, 0);
 }
+
+test('assumptions', (t) => {
+  // This is basically to ensure that our direct uglify.minify calls in this file output what we
+  // expect. If it doesn't output what we expect, then we might have to rework the source map logic.
+  const expectedMinifiedSource = '!function(){console.log(0)}();';
+  t.is(expectedMinifiedSource, minifiedSource);
+});
 
 test('workerCount should be cpus - 1 if assetCount is >= cpus', t => {
   const cpuStub = sinon.stub(os, 'cpus', () => ({ length: 8 }));
@@ -87,17 +103,16 @@ test('workerCount should take options before checking assets or cpu', t => {
   cpuStub.restore();
 });
 
-test.cb('processAssets minifies each of the assets in the compilation object', (t) => {
+test('processAssets minifies each of the assets in the compilation object', (t) => {
   const fakeCompilationObject = createFakeCompilationObject();
-  processAssets(fakeCompilationObject, {}).then(() => {
+  return processAssets(fakeCompilationObject, {}).then(() => {
     const minifiedResult = fakeCompilationObject.assets[filename].source();
     t.is(minifiedResult, minifiedSource);
     assertNoError(fakeCompilationObject, t);
-    t.end();
   });
 });
 
-test.cb('processAssets respects test option', (t) => {
+test('processAssets respects test option', (t) => {
   const fakeCompilationObject = createFakeCompilationObject();
   processAssets(fakeCompilationObject, {
     test: /tested/,
@@ -107,13 +122,12 @@ test.cb('processAssets respects test option', (t) => {
     assertNoError(fakeCompilationObject, t);
     t.is(unmatchedResult, unminifedSource);
     t.is(matchedResult, minifiedSource);
-    t.end();
   });
 });
 
-test.cb('processAssets respects include option', (t) => {
+test('processAssets respects include option', (t) => {
   const fakeCompilationObject = createFakeCompilationObject();
-  processAssets(fakeCompilationObject, {
+  return processAssets(fakeCompilationObject, {
     include: [/tested/],
   }).then(() => {
     const unmatchedResult = fakeCompilationObject.assets[filename].source();
@@ -121,13 +135,12 @@ test.cb('processAssets respects include option', (t) => {
     assertNoError(fakeCompilationObject, t);
     t.is(unmatchedResult, unminifedSource);
     t.is(matchedResult, minifiedSource);
-    t.end();
   });
 });
 
-test.cb('processAssets respects exclude option', (t) => {
+test('processAssets respects exclude option', (t) => {
   const fakeCompilationObject = createFakeCompilationObject();
-  processAssets(fakeCompilationObject, {
+  return processAssets(fakeCompilationObject, {
     exclude: [/tested/],
   }).then(() => {
     const unmatchedResult = fakeCompilationObject.assets[filename].source();
@@ -135,35 +148,36 @@ test.cb('processAssets respects exclude option', (t) => {
     assertNoError(fakeCompilationObject, t);
     t.is(unmatchedResult, minifiedSource);
     t.is(matchedResult, unminifedSource);
-    t.end();
   });
 });
 
-test.cb('processAssets respects uglifyJS.sourceMap option', (t) => {
+test('processAssets respects sourceMap:true', (t) => {
   const fakeCompilationObject = createFakeCompilationObject();
-  processAssets(fakeCompilationObject, {
+  return processAssets(fakeCompilationObject, {
     sourceMap: true,
-    uglifyJS: { },
+    uglifyJS: {},
   }).then(() => {
     const assetSourceMap = fakeCompilationObject.assets[filename];
     assertNoError(fakeCompilationObject, t);
-    t.is(assetSourceMap.map(), sourceMap);
-    t.end();
+    t.deepEqual(assetSourceMap.map(), minifiedSourceMap);
   });
+});
 
-  processAssets(fakeCompilationObject, {
+test('processAssets respects sourceMap:false', t => {
+  const fakeCompilationObject = createFakeCompilationObject();
+  return processAssets(fakeCompilationObject, {
     sourceMap: false,
-    uglifyJS: { },
+    uglifyJS: {},
   }).then(() => {
     const assetSourceMap = fakeCompilationObject.assets[filename];
+    t.is(assetSourceMap.source(), minifiedSource);
     assertNoError(fakeCompilationObject, t);
     t.is(assetSourceMap.map(), null);
-    t.end();
   });
 });
 
 
-test.cb('invalid JS should generate an error', (t) => {
+test('invalid JS should generate an error', (t) => {
   const errorCompilationObject = {
     assets: {
       'somefile.js': {
@@ -182,11 +196,10 @@ test.cb('invalid JS should generate an error', (t) => {
     realErrorMessage = e.message;
   }
 
-  processAssets(errorCompilationObject, {
+  return processAssets(errorCompilationObject, {
     sourceMap: false,
     uglifyJS: {},
   }).then(() => {
     t.truthy(errorCompilationObject.errors[0].message.includes(realErrorMessage));
-    t.end();
   });
 });
