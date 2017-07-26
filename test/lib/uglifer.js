@@ -4,6 +4,7 @@ import os from 'os';
 import uglifyJS from 'uglify-js';
 import escodegen from 'escodegen';
 import { parse } from 'acorn';
+import { SourceMapSource } from 'webpack-sources';
 
 const {
   workerCount,
@@ -24,14 +25,13 @@ const unminifiedSourceMap = JSON.parse(escodegen.generate(ast, {
   sourceMap: true,
 }));
 
-const { map: resultingMap, code: resultingSource } = uglifyJS.minify(unminifedSource, {
-  inSourceMap: unminifiedSourceMap,
-  outSourceMap: 'x',
-  fromString: true,
+const { map, code: minifiedSource } = uglifyJS.minify({ x: unminifedSource }, {
+  sourceMap: {
+    content: unminifiedSourceMap,
+  },
 });
 
-const minifiedSourceMap = JSON.parse(resultingMap);
-const minifiedSource = resultingSource.replace('\n//# sourceMappingURL=x', '');
+const minifiedSourceMap = new SourceMapSource(minifiedSource, filename, map).map();
 
 function createFakeCompilationObject() {
   return {
@@ -65,7 +65,7 @@ function assertNoError(compilationObject, t) {
 test('assumptions', (t) => {
   // This is basically to ensure that our direct uglify.minify calls in this file output what we
   // expect. If it doesn't output what we expect, then we might have to rework the source map logic.
-  const expectedMinifiedSource = '!function(){console.log(0)}();';
+  const expectedMinifiedSource = 'console.log(0);';
   t.is(expectedMinifiedSource, minifiedSource);
 });
 
@@ -191,7 +191,8 @@ test('invalid JS should generate an error', (t) => {
 
   let realErrorMessage;
   try {
-    uglifyJS.minify(badCode, { fromString: true });
+    const result = uglifyJS.minify(badCode);
+    if (result.error) throw result.error;
   } catch (e) {
     realErrorMessage = e.message;
   }
