@@ -58,6 +58,23 @@ function createFakeCompilationObject() {
   };
 }
 
+function createFakeES6CompilationObject() {
+  return {
+    assets: {
+      'someFile.js': {
+        source() {
+          return '() => {}';
+        },
+        map() {
+          return null;
+        },
+      },
+    },
+    options: {},
+    errors: [],
+  };
+}
+
 function assertNoError(compilationObject, t) {
   t.is(compilationObject.errors.length, 0);
 }
@@ -202,5 +219,25 @@ test('invalid JS should generate an error', (t) => {
     uglifyJS: {},
   }).then(() => {
     t.truthy(errorCompilationObject.errors[0].message.includes(realErrorMessage));
+  });
+});
+
+test('Passing uglifyJS options throws an error when minifying es6', (t) => {
+  const es6CompilationObject = createFakeES6CompilationObject();
+  return processAssets(es6CompilationObject, {
+    sourceMap: false,
+    uglifyJS: {},
+  }).then(() => {
+    t.is(es6CompilationObject.errors.length, 1);
+  });
+});
+
+test('Passing uglifyES options does not throw an error when minifying es6', (t) => {
+  const es6CompilationObject = createFakeES6CompilationObject();
+  return processAssets(es6CompilationObject, {
+    sourceMap: false,
+    uglifyES: {},
+  }).then(() => {
+    assertNoError(es6CompilationObject, t);
   });
 });
