@@ -21,8 +21,18 @@ module.exports = {
       workerCount, // Optional int. Number of workers to run uglify. Defaults to num of cpus - 1 or asset count (whichever is smaller)
       sourceMap, // Optional Boolean. This slows down the compilation. Defaults to false.
       uglifyJS: {
-        // These pass straight through to uglify.
+        // These pass straight through to uglify-js@3.
+        // Cannot be used with uglifyES.
+        // Defaults to {} if not neither uglifyJS or uglifyES are provided.
+        // You should use this option if you need to ensure es5 support. uglify-js will produce an error message
+        // if it comes across any es6 code that it can't parse.
       },
+      uglifyES: {
+        // These pass straight through to uglify-es.
+        // Cannot be used with uglifyJS.
+        // uglify-es is a version of uglify that understands newer es6 syntax. You should use this option if the
+        // files that you're minifying do not need to run in older browsers/versions of node.
+      }
     }),
   ],
 };

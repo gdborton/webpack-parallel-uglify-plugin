@@ -1,6 +1,6 @@
 {
   "name": "webpack-parallel-uglify-plugin",
-  "version": "0.4.2",
+  "version": "1.0.0",
   "description": "A webpack plugin to run uglifyjs in parallel.",
   "main": "index.js",
   "scripts": {
