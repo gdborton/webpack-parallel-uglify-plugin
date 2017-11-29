@@ -1,3 +1,7 @@
+## 1.0.1
+
+ - Delay pruning of the cache until compilation is completely done. ([#41](https://github.com/gdborton/webpack-parallel-uglify-plugin/pull/41))
+
 ## 1.0.0
 
  - Breaking: Updated to [uglify-js](https://github.com/mishoo/UglifyJS2)@3, syntax remains the same, but the options you provide uglifyJS may have changed. ([#31](https://github.com/gdborton/webpack-parallel-uglify-plugin/pull/31))
