@@ -1,3 +1,6 @@
+## 1.0.2
+ - Fix issue with uglifyES options not being applied. ([#42](https://github.com/gdborton/webpack-parallel-uglify-plugin/pull/42))
+
 ## 1.0.1
 
  - Delay pruning of the cache until compilation is completely done. ([#41](https://github.com/gdborton/webpack-parallel-uglify-plugin/pull/41))
