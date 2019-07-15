@@ -1,3 +1,6 @@
+## 1.1.1
+ - Updated uglify dependencies to include recent features/bug fixes.
+
 ## 1.1.0
  - Added babel-code-frame to pretty print SyntaxError messages, this should help in debugging failed minification. ([#45](https://github.com/gdborton/webpack-parallel-uglify-plugin/pull/45))
 
