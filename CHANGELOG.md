@@ -1,3 +1,6 @@
+## 1.1.2
+ - Enable source maps by default. ([#61](https://github.com/gdborton/webpack-parallel-uglify-plugin/pull/61))
+
 ## 1.1.1
  - Updated uglify dependencies to include recent features/bug fixes.
 
