@@ -1,9 +1,9 @@
 import test from 'ava';
 import uglify from 'uglify-js';
 import sinon from 'sinon';
+import { RawSource, OriginalSource } from 'webpack-sources';
 import tmpFile from '../../lib/tmp-file';
 import cache from '../../lib/cache';
-import { RawSource, OriginalSource } from 'webpack-sources';
 
 const codeSource = 'function  test   ()    {   void(0); }';
 const rawSource = new RawSource(codeSource);
@@ -23,6 +23,7 @@ const minifiedContent = uglify.minify(codeSource, { });
 // so we stub it to be sure it doesn't get in the way.
 const stubbedOn = sinon.stub(process, 'on');
 const worker = require('../../lib/worker');
+
 const { minify, processMessage } = worker;
 
 stubbedOn.restore();
@@ -39,7 +40,7 @@ test.afterEach(() => {
   stubbedUpdate.restore();
 });
 
-test.serial('minify should not return a map if called with a RawSource object', t => {
+test.serial('minify should not return a map if called with a RawSource object', (t) => {
   const { map } = rawSource.sourceAndMap();
   const result = minify(codeSource, map, undefined, uglify);
   t.is(result.map, undefined);
@@ -48,12 +49,12 @@ test.serial('minify should not return a map if called with a RawSource object', 
 
 test.serial(
   'minify should return a valid source map if called with an OriginalSource object',
-  t => {
+  (t) => {
     const { map } = originalSource.sourceAndMap();
     const result = minify(codeSource, map, undefined, uglify);
     t.truthy(result.map);
     t.is(result.code, minifiedContent.code); // should produce the same minified content.
-  }
+  },
 );
 
 test.serial.cb('processMessage should minify the file passed via a tmpFile message', (t) => {

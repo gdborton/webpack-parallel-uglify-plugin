@@ -86,7 +86,7 @@ test('assumptions', (t) => {
   t.is(expectedMinifiedSource, minifiedSource);
 });
 
-test.serial('workerCount should be cpus - 1 if assetCount is >= cpus', t => {
+test.serial('workerCount should be cpus - 1 if assetCount is >= cpus', (t) => {
   const cpuStub = sinon.stub(os, 'cpus', () => ({ length: 8 }));
   const assetCount = 10;
   const options = {};
@@ -94,7 +94,7 @@ test.serial('workerCount should be cpus - 1 if assetCount is >= cpus', t => {
   cpuStub.restore();
 });
 
-test.serial('workerCount should be assetCount if assetCount is < cpus', t => {
+test.serial('workerCount should be assetCount if assetCount is < cpus', (t) => {
   const cpuStub = sinon.stub(os, 'cpus', () => ({ length: 8 }));
   const assetCount = 5;
   const options = {};
@@ -102,7 +102,7 @@ test.serial('workerCount should be assetCount if assetCount is < cpus', t => {
   cpuStub.restore();
 });
 
-test('workerCount should follow options', t => {
+test('workerCount should follow options', (t) => {
   const assetCount = 5;
   const options = {
     workerCount: 2,
@@ -110,7 +110,7 @@ test('workerCount should follow options', t => {
   t.is(workerCount(options, assetCount), 2);
 });
 
-test.serial('workerCount should take options before checking assets or cpu', t => {
+test.serial('workerCount should take options before checking assets or cpu', (t) => {
   const cpuStub = sinon.stub(os, 'cpus', () => ({ length: 2 }));
   const assetCount = 2;
   const options = {
@@ -180,7 +180,7 @@ test('processAssets respects sourceMap:true', (t) => {
   });
 });
 
-test('processAssets respects sourceMap:false', t => {
+test('processAssets respects sourceMap:false', (t) => {
   const fakeCompilationObject = createFakeCompilationObject();
   return processAssets(fakeCompilationObject, {
     sourceMap: false,
@@ -192,7 +192,6 @@ test('processAssets respects sourceMap:false', t => {
     t.is(assetSourceMap.map(), null);
   });
 });
-
 
 test('invalid JS should generate an error', (t) => {
   const errorCompilationObject = {

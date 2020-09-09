@@ -24,7 +24,7 @@ function FasterUglifyPlugin(options) {
 }
 
 FasterUglifyPlugin.prototype.apply = function apply(compiler) {
-  compiler.plugin('compilation', compilation => {
+  compiler.plugin('compilation', (compilation) => {
     compilation.plugin('optimize-chunk-assets', (chunks, callback) => {
       uglifier.processAssets(compilation, this.options).then(() => {
         callback();

@@ -1,9 +1,9 @@
-import cache from '../../lib/cache';
 import test from 'ava';
 import path from 'path';
 import sinon from 'sinon';
 import fs from 'fs';
 import glob from 'glob';
+import cache from '../../lib/cache';
 
 const testFiles = ['throw', 'test'];
 
@@ -38,13 +38,13 @@ test.afterEach(() => {
   stubbedGlob.restore();
 });
 
-test.serial('cacheKeyGenerator should return a sha256 hash for a given file name', t => {
+test.serial('cacheKeyGenerator should return a sha256 hash for a given file name', (t) => {
   const result = cache.createHashFromContent('asdf');
   t.is(typeof result, 'string');
   t.is(result.length, 64);
 });
 
-test.serial('retrieveFromCache should return cached content', t => {
+test.serial('retrieveFromCache should return cached content', (t) => {
   const cacheDir = '/dev/null';
   const cacheKey = 'test';
   const result = cache.retrieveFromCache(cacheKey, cacheDir);
@@ -53,14 +53,14 @@ test.serial('retrieveFromCache should return cached content', t => {
   t.is(result, 'filecontents');
 });
 
-test.serial('retrieveFromCache should return a falsy value if the cache file does not exist', t => {
+test.serial('retrieveFromCache should return a falsy value if the cache file does not exist', (t) => {
   const cacheDir = '/dev/null';
   const cacheKey = 'throw';
   const result = cache.retrieveFromCache(cacheKey, cacheDir);
   t.falsy(result);
 });
 
-test.serial('saveToCache should write results to a cached file', t => {
+test.serial('saveToCache should write results to a cached file', (t) => {
   const cacheDir = '/cacheDir';
   const minifiedCode = 'minifiedCode;';
   const cacheKey = 'mycachekey';
@@ -68,7 +68,7 @@ test.serial('saveToCache should write results to a cached file', t => {
   t.true(stubbedWrite.calledWith(path.join(cacheDir, `${cacheKey}.js`), minifiedCode));
 });
 
-test.serial('saveToCache should not write anything if no cacheDir is defined', t => {
+test.serial('saveToCache should not write anything if no cacheDir is defined', (t) => {
   const minifiedCode = 'minifiedCode;';
   const cacheKey = 'mycachekey';
   cache.saveToCache(cacheKey, minifiedCode, undefined);
@@ -81,20 +81,20 @@ test.serial('pruneCache is a noop if cacheDir is not provided', (t) => {
   });
 });
 
-test.serial('pruneCache removes cache files that are unused', t => {
+test.serial('pruneCache removes cache files that are unused', (t) => {
   cache.pruneCache(['usedKey'], ['usedKey', 'unusedKey1', 'unusedKey2'], 'cacheDir');
   t.true(stubbedDelete.calledWith(path.join('cacheDir', 'unusedKey1.js')));
   t.true(stubbedDelete.calledWith(path.join('cacheDir', 'unusedKey2.js')));
   t.false(stubbedDelete.calledWith(path.join('cacheDir', 'usedKey.js')));
 });
 
-test.serial('getCacheKeysFromDisk returns the filename of js files in the cacheDir', t => {
+test.serial('getCacheKeysFromDisk returns the filename of js files in the cacheDir', (t) => {
   const result = cache.getCacheKeysFromDisk('doesnotmatter');
   t.is(result[0], 'path1');
   t.is(result[1], 'path2');
 });
 
-test.serial('getCacheKeysFromDisk returns an emtpy array if a cacheDir is not provided', t => {
+test.serial('getCacheKeysFromDisk returns an emtpy array if a cacheDir is not provided', (t) => {
   const result = cache.getCacheKeysFromDisk(undefined);
   t.deepEqual(result, []);
 });
