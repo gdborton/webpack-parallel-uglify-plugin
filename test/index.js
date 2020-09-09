@@ -71,7 +71,7 @@ test('deleting unused cache files after all asset optimizations', (t) => {
     [
       '/fake_cache_dir/file1.js',
       '/fake_cache_dir/file2.js',
-    ]
+    ],
   );
 
   const uglifyPlugin = new WebpackParallelUglifyPlugin({
@@ -90,6 +90,6 @@ test('deleting unused cache files after all asset optimizations', (t) => {
   t.deepEqual(
     fs.unlinkSync.args,
     [['/fake_cache_dir/file1.js'], ['/fake_cache_dir/file2.js']],
-    'Unused cache files should be removed after compilation'
+    'Unused cache files should be removed after compilation',
   );
 });
