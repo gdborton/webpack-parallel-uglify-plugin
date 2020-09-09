@@ -42,6 +42,8 @@ module.exports = {
 
 These times were found by running webpack on a very large build, producing 493 output files and totaling 144.24 MiB before minifying.  All times are listed with fully cached babel-loader for consistency.
 
+**Note:** I no longer have access to the huge project that I was testing this on.
+
 ```
 No minification: Webpack build complete in: 86890ms (1m 26s)
 Built in uglify plugin: Webpack build complete in: 2543548ms (42m 23s)
