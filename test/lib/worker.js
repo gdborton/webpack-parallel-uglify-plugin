@@ -39,21 +39,24 @@ test.afterEach(() => {
   stubbedUpdate.restore();
 });
 
-test('minify should not return a map if called with a RawSource object', t => {
+test.serial('minify should not return a map if called with a RawSource object', t => {
   const { map } = rawSource.sourceAndMap();
   const result = minify(codeSource, map, undefined, uglify);
   t.is(result.map, undefined);
   t.is(result.code, minifiedContent.code); // should produce the same minified content.
 });
 
-test('minify should return a valid source map if called with an OriginalSource object', t => {
-  const { map } = originalSource.sourceAndMap();
-  const result = minify(codeSource, map, undefined, uglify);
-  t.truthy(result.map);
-  t.is(result.code, minifiedContent.code); // should produce the same minified content.
-});
+test.serial(
+  'minify should return a valid source map if called with an OriginalSource object',
+  t => {
+    const { map } = originalSource.sourceAndMap();
+    const result = minify(codeSource, map, undefined, uglify);
+    t.truthy(result.map);
+    t.is(result.code, minifiedContent.code); // should produce the same minified content.
+  }
+);
 
-test.cb('processMessage should minify the file passed via a tmpFile message', (t) => {
+test.serial.cb('processMessage should minify the file passed via a tmpFile message', (t) => {
   const tmpFileName = 'asdf';
 
   processMessage(tmpFileName, (error) => {

@@ -16,21 +16,27 @@
     "uglifyjs",
     "minimize"
   ],
+  "ava": {
+    "require": [
+      "esm"
+    ]
+  },
   "author": "Gary Borton <gdborton@gmail.com>",
   "license": "ISC",
   "devDependencies": {
     "acorn": "^5.1.1",
-    "ava": "^0.15.1",
-    "coveralls": "^2.11.9",
+    "ava": "^3.12.1",
+    "coveralls": "^3.1.0",
     "escodegen": "^1.8.1",
     "eslint": "^2.10.2",
     "eslint-config-airbnb": "^9.0.1",
     "eslint-plugin-import": "^1.8.0",
     "eslint-plugin-jsx-a11y": "^1.2.2",
     "eslint-plugin-react": "^5.1.1",
-    "nyc": "^6.6.1",
+    "esm": "^3.2.25",
+    "nyc": "^15.1.0",
     "sinon": "^1.17.4",
-    "webpack": "^3.0.0"
+    "webpack": "^4.44.1"
   },
   "dependencies": {
     "babel-code-frame": "^6.26.0",
