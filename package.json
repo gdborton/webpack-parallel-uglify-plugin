@@ -36,7 +36,7 @@
     "esm": "^3.2.25",
     "nyc": "^15.1.0",
     "sinon": "^1.17.4",
-    "webpack": "^3.0.0"
+    "webpack": "^4.44.1"
   },
   "dependencies": {
     "babel-code-frame": "^6.26.0",
