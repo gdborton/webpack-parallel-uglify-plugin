@@ -86,7 +86,7 @@ test('assumptions', (t) => {
   t.is(expectedMinifiedSource, minifiedSource);
 });
 
-test('workerCount should be cpus - 1 if assetCount is >= cpus', t => {
+test.serial('workerCount should be cpus - 1 if assetCount is >= cpus', t => {
   const cpuStub = sinon.stub(os, 'cpus', () => ({ length: 8 }));
   const assetCount = 10;
   const options = {};
@@ -94,7 +94,7 @@ test('workerCount should be cpus - 1 if assetCount is >= cpus', t => {
   cpuStub.restore();
 });
 
-test('workerCount should be assetCount if assetCount is < cpus', t => {
+test.serial('workerCount should be assetCount if assetCount is < cpus', t => {
   const cpuStub = sinon.stub(os, 'cpus', () => ({ length: 8 }));
   const assetCount = 5;
   const options = {};
@@ -110,7 +110,7 @@ test('workerCount should follow options', t => {
   t.is(workerCount(options, assetCount), 2);
 });
 
-test('workerCount should take options before checking assets or cpu', t => {
+test.serial('workerCount should take options before checking assets or cpu', t => {
   const cpuStub = sinon.stub(os, 'cpus', () => ({ length: 2 }));
   const assetCount = 2;
   const options = {
@@ -131,7 +131,7 @@ test('processAssets minifies each of the assets in the compilation object', (t) 
 
 test('processAssets respects test option', (t) => {
   const fakeCompilationObject = createFakeCompilationObject();
-  processAssets(fakeCompilationObject, {
+  return processAssets(fakeCompilationObject, {
     test: /tested/,
   }).then(() => {
     const unmatchedResult = fakeCompilationObject.assets[filename].source();
