@@ -12,9 +12,20 @@
     "url": "git://github.com/gdborton/webpack-parallel-uglify-plugin.git"
   },
   "keywords": [
+    "compress",
+    "compressor",
+    "min",
+    "minification",
+    "minifier",
+    "minify",
+    "optimize",
+    "optimizer",
+    "terser",
+    "uglify",
+    "uglify-es",
+    "uglify-js",
     "webpack",
-    "uglifyjs",
-    "minimize"
+    "webpack-plugin"
   ],
   "ava": {
     "require": [
