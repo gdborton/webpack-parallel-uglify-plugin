@@ -1,3 +1,7 @@
+## 2.0.0
+ - Breaking: Replaced `uglify-es` with `terser` ([#66](https://github.com/gdborton/webpack-parallel-uglify-plugin/pull/66))
+ - Chore: Updated dependencies to address identified vulnerabilities. ([#65](https://github.com/gdborton/webpack-parallel-uglify-plugin/pull/65))
+
 ## 1.1.2
  - Enable source maps by default. ([#61](https://github.com/gdborton/webpack-parallel-uglify-plugin/pull/61))
 
