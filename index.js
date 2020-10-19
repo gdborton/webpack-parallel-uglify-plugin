@@ -5,20 +5,20 @@ function sourceMapError(lib) {
 }
 
 function FasterUglifyPlugin(options) {
-  if (options.uglifyJS && options.uglifyES) {
-    throw new TypeError('You cannot use both uglifyJS and uglifyES for the same plugin.');
+  if (options.uglifyJS && options.terser) {
+    throw new TypeError('You cannot use both uglifyJS and terser for the same plugin.');
   }
 
   if (options.uglifyJS && options.uglifyJS.sourceMap) {
     throw new TypeError(sourceMapError('uglifyJS'));
   }
 
-  if (options.uglifyES && options.uglifyES.sourceMap) {
-    throw new TypeError(sourceMapError('uglifyES'));
+  if (options.terser && options.terser.sourceMap) {
+    throw new TypeError(sourceMapError('terser'));
   }
   this.options = options;
 
-  if (!(this.options.uglifyJS || this.options.uglifyES)) {
+  if (!(this.options.uglifyJS || this.options.terser)) {
     this.options.uglifyJS = {};
   }
 }

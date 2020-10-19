@@ -19,7 +19,7 @@ test('creating a WebpackParallelUglifyPlugin instance w/ both uglify options thr
   t.throws(() => {
     new WebpackParallelUglifyPlugin({
       uglifyJS: {},
-      uglifyES: {},
+      terser: {},
     });
   });
 });
@@ -33,7 +33,7 @@ test('creating a WebpackParallelUglifyPlugin instance with uglify.sourceMap thro
 
   t.throws(() => {
     new WebpackParallelUglifyPlugin({
-      uglifyES: { sourceMap: true },
+      terser: { sourceMap: true },
     });
   });
 });
