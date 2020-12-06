@@ -55,7 +55,7 @@
     "pify": "^3.0.0",
     "terser": "^5.3.5",
     "tmp": "0.0.29",
-    "uglify-js": "^3.6.0",
+    "uglify-js": "^3.12.1",
     "webpack-sources": "^1.0.0",
     "worker-farm": "^1.3.1"
   },
