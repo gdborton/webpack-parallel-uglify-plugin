@@ -63,7 +63,7 @@ function createFakeES6CompilationObject() {
     assets: {
       'someFile.js': {
         source() {
-          return '() => {}';
+          return 'const test = () => { function asdf(){console.log("a")} asdf()}; test();';
         },
         map() {
           return null;
@@ -231,11 +231,11 @@ test('Passing uglifyJS options throws an error when minifying es6', (t) => {
   });
 });
 
-test('Passing uglifyES options does not throw an error when minifying es6', (t) => {
+test('Passing terser options does not throw an error when minifying es6', (t) => {
   const es6CompilationObject = createFakeES6CompilationObject();
   return processAssets(es6CompilationObject, {
     sourceMap: false,
-    uglifyES: {},
+    terser: {},
   }).then(() => {
     assertNoError(es6CompilationObject, t);
   });

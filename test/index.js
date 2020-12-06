@@ -19,7 +19,7 @@ test('creating a WebpackParallelUglifyPlugin instance w/ both uglify options thr
   t.throws(() => {
     new WebpackParallelUglifyPlugin({
       uglifyJS: {},
-      uglifyES: {},
+      terser: {},
     });
   });
 });
@@ -33,7 +33,7 @@ test('creating a WebpackParallelUglifyPlugin instance with uglify.sourceMap thro
 
   t.throws(() => {
     new WebpackParallelUglifyPlugin({
-      uglifyES: { sourceMap: true },
+      terser: { sourceMap: true },
     });
   });
 });
@@ -43,13 +43,32 @@ test('providing no uglify options defaults to uglifyJS: {}', (t) => {
   t.deepEqual(plugin.options, { uglifyJS: {} });
 });
 
+function FakeCompilation() {
+  this.hooks = {
+    processAssets: {
+      tapAsync: () => {
+
+      }
+    }
+  }
+}
+
 function FakeCompiler() {
   const callbacks = {};
+  const fakeCompilation = new FakeCompilation();
   this.assets = [];
-
-  this.plugin = (event, callback) => {
-    callbacks[event] = callback;
-  };
+  this.hooks = {
+    compilation: {
+      tap: (pluginName, callback) => {
+        callbacks['compilation'] = () => callback(fakeCompilation);
+      }
+    },
+    done: {
+      tap: (pluginName, callback) => {
+        callbacks['done'] = callback;
+      }
+    }
+  }
 
   this.fireEvent = (event, ...args) => {
     callbacks[event].apply(this, args);
@@ -82,10 +101,7 @@ test('deleting unused cache files after all asset optimizations', (t) => {
   const compiler = new FakeCompiler();
   uglifyPlugin.apply(compiler);
   compiler.fireEvent('compilation', compiler);
-  compiler.fireEvent('optimize-chunk-assets', null, () => {});
-  compiler.fireEvent('optimize-chunk-assets', null, () => {});
   t.is(fs.unlinkSync.callCount, 0, 'Cache should not be cleared by optimize-chunk-assets');
-
   compiler.fireEvent('done');
   t.deepEqual(
     fs.unlinkSync.args,

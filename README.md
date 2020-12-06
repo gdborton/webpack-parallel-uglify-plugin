@@ -1,4 +1,4 @@
-# webpack-parallel-uglify-plugin [![Build Status](https://travis-ci.org/gdborton/webpack-parallel-uglify-plugin.svg?branch=master)](https://travis-ci.org/gdborton/webpack-parallel-uglify-plugin) [![Coverage Status](https://coveralls.io/repos/github/gdborton/webpack-parallel-uglify-plugin/badge.svg?branch=master)](https://coveralls.io/github/gdborton/webpack-parallel-uglify-plugin?branch=master)
+# webpack-parallel-uglify-plugin [![Build status](https://ci.appveyor.com/api/projects/status/v1xvpvx0xfumv9fh/branch/master?svg=true)](https://ci.appveyor.com/project/gdborton/webpack-parallel-uglify-plugin/branch/master) [![Coverage Status](https://coveralls.io/repos/github/gdborton/webpack-parallel-uglify-plugin/badge.svg?branch=master)](https://coveralls.io/github/gdborton/webpack-parallel-uglify-plugin?branch=master)
 
 This plugin serves to help projects with many entry points speed up their builds.  The UglifyJS plugin provided with webpack runs sequentially on each of the output files.  This plugin runs uglify in parallel with one thread for each of your available cpus.  This can lead to significantly reduced build times as minification is very CPU intensive.
 
@@ -22,16 +22,17 @@ module.exports = {
       sourceMap, // Optional Boolean. This slows down the compilation. Defaults to false.
       uglifyJS: {
         // These pass straight through to uglify-js@3.
-        // Cannot be used with uglifyES.
-        // Defaults to {} if not neither uglifyJS or uglifyES are provided.
-        // You should use this option if you need to ensure es5 support. uglify-js will produce an error message
-        // if it comes across any es6 code that it can't parse.
+        // Cannot be used with terser.
+        // Defaults to {} if not neither uglifyJS or terser are provided.
+        // You should use this option if you need to ensure es5 support. uglify-js will produce an
+        // error message if it comes across any es6 code that it can't parse.
       },
-      uglifyES: {
-        // These pass straight through to uglify-es.
+      terser: {
+        // These pass straight through to terser.
         // Cannot be used with uglifyJS.
-        // uglify-es is a version of uglify that understands newer es6 syntax. You should use this option if the
-        // files that you're minifying do not need to run in older browsers/versions of node.
+        // terser is a fork of uglify-es, a version of uglify that supports ES6+ version of uglify
+        // that understands newer es6 syntax. You should use this option if the files that you're
+        // minifying do not need to run in older browsers/versions of node.
       }
     }),
   ],
